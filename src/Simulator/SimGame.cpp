@@ -42,7 +42,8 @@ void SimGame::drawMaze(sf::RenderTarget& target) const {
     maze_texture.display();
 
     for (const auto& plugin : plugins) {
-        plugin->draw(maze_texture);
+        plugin->render();
+        plugin->draw(maze_texture, {});
     }
 
     sf::Sprite maze_sprite(maze_texture.getTexture());

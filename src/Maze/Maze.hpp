@@ -81,9 +81,9 @@ bool Maze<S, C, E>::checkBound(const sf::Vector2i& coord, const Direction dir) {
         case Direction::UP:
             return coord.y > 0;
         case Direction::RIGHT:
-            return coord.x < S;
+            return coord.x < S - 1;
         case Direction::DOWN:
-            return coord.y < S;
+            return coord.y < S - 1;
         case Direction::LEFT:
             return coord.x > 0;
     }
@@ -97,8 +97,7 @@ bool Maze<S, C, E>::isEdgeOpen(
         return false;
     }
 
-    auto e = edge(coord, dir);
-    return !e.hasWall;
+    return !edge(coord, dir).hasWall;
 }
 
 }  // namespace Mazemouse

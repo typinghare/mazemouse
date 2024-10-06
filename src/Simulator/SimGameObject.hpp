@@ -8,7 +8,7 @@ namespace Mazemouse {
 /**
  * Represents a drawable game object.
  */
-class SimGameObject : public sf::Drawable {
+class SimGameObject : public virtual sf::Drawable {
  public:
     explicit SimGameObject(sf::Vector2u size);
 

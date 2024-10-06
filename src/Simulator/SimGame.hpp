@@ -29,14 +29,12 @@ struct SimGame {
     static void drawPeripheralWalls(sf::RenderTarget& target);
 };
 
-struct SimGamePlugin {
+struct SimGamePlugin : virtual SimMazeObject {
     SimGame* game;
 
     explicit SimGamePlugin(SimGame* game) : game(game) {}
 
-    virtual ~SimGamePlugin() = default;
-
-    virtual void draw(sf::RenderTexture& maze_render_texture) = 0;
+    ~SimGamePlugin() override = default;
 
     virtual void update(unsigned dt) = 0;
 };

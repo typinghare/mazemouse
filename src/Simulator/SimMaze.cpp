@@ -7,9 +7,7 @@ void SimMaze::renderOnTexture(sf::RenderTexture& render_texture) {
     renderWallsTexture(render_texture);
 }
 
-SimMaze::SimMaze() :
-    SimGameObject{ { SIM_MAZE_SIDE_LENGTH_PIXEL,
-                     SIM_MAZE_SIDE_LENGTH_PIXEL } } {
+SimMaze::SimMaze() {
     generatePaths();
     render();
 }
@@ -81,48 +79,6 @@ void SimMaze::renderWallsTexture(sf::RenderTexture& render_texture) const {
                         SIM_WALL_THICKNESS_HALF_PIXEL,
                 });
                 render_texture.draw(rectangle_horizontal);
-            }
-        }
-    }
-}
-
-void SimMaze::drawEdges(sf::RenderTarget& target) const {
-    static const auto COLOR = sf::Color::White;
-
-    sf::RectangleShape rectangle_vertical({ 2, SIM_CELL_SIDE_LENGTH_PIXEL });
-    rectangle_vertical.setFillColor(COLOR);
-    sf::RectangleShape rectangle_horizontal({ SIM_CELL_SIDE_LENGTH_PIXEL, 2 });
-    rectangle_horizontal.setFillColor(COLOR);
-
-    // Vertical edges
-    for (int col = 0; col < SIM_MAZE_SIDE_LENGTH; ++col) {
-        for (int row = 0; row < SIM_MAZE_SIDE_LENGTH - 1; ++row) {
-            const auto num_traveled =
-                edge({ col, row }, Direction::DOWN).num_travelled;
-
-            if (num_traveled > 0) {
-                rectangle_vertical.setPosition(
-                    { static_cast<float>(col + 0.5) *
-                          SIM_CELL_SIDE_LENGTH_PIXEL,
-                      static_cast<float>(row + 0.5) *
-                          SIM_CELL_SIDE_LENGTH_PIXEL });
-                target.draw(rectangle_vertical);
-            }
-        }
-    }
-
-    // Horizontal edges
-    for (int col = 0; col < SIM_MAZE_SIDE_LENGTH - 1; ++col) {
-        for (int row = 0; row < SIM_MAZE_SIDE_LENGTH; ++row) {
-            const auto num_traveled =
-                edge({ col, row }, Direction::RIGHT).num_travelled;
-            if (num_traveled > 0) {
-                rectangle_horizontal.setPosition(
-                    { static_cast<float>(col + 0.5) *
-                          SIM_CELL_SIDE_LENGTH_PIXEL,
-                      static_cast<float>(row + 0.5) *
-                          SIM_CELL_SIDE_LENGTH_PIXEL });
-                target.draw(rectangle_horizontal);
             }
         }
     }

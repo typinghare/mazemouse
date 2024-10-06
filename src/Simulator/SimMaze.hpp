@@ -2,7 +2,6 @@
 #define SIMMAZE_HPP
 
 #include <SFML/Graphics.hpp>
-
 #include "../Maze.hpp"
 #include "SimGameObject.hpp"
 
@@ -20,8 +19,14 @@ struct SimEdge : Edge {
     mutable int num_travelled = 0;
 };
 
+struct SimMazeObject : SimGameObject {
+    SimMazeObject() :
+        SimGameObject{ { SIM_MAZE_SIDE_LENGTH_PIXEL,
+                         SIM_MAZE_SIDE_LENGTH_PIXEL } } {}
+};
+
 struct SimMaze final : Maze<SIM_MAZE_SIDE_LENGTH, SimCell, SimEdge>,
-                       SimGameObject {
+                       SimMazeObject {
     SimMaze();
 
  protected:
@@ -33,8 +38,6 @@ struct SimMaze final : Maze<SIM_MAZE_SIDE_LENGTH, SimCell, SimEdge>,
     void renderWallsTexture(sf::RenderTexture& render_texture) const;
 
     void generatePaths() const;
-
-    void drawEdges(sf::RenderTarget& target) const;
 };
 
 }  // namespace Mazemouse

@@ -29,9 +29,12 @@ struct SimMouse final : SimGamePlugin {
 
     [[nodiscard]] sf::Vector2i getNextPosition() const;
 
-    void draw(sf::RenderTexture& maze_texture) override;
-
     void update(unsigned dt) override;
+
+ protected:
+    void renderOnTexture(sf::RenderTexture& render_texture) override;
+
+    void renderEdges(sf::RenderTexture& render_texture) const;
 };
 
 }  // namespace Mazemouse
