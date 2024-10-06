@@ -52,4 +52,3 @@ SpacesBeforeTrailingComments: 2
 Cpp11BracedListStyle: false
 AlignAfterOpenBracket: AlwaysBreak
 BinPackParameters: false
-ColumnLimit: 100

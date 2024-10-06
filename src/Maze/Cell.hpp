@@ -3,7 +3,7 @@
 
 namespace Mazemouse {
 
-class Cell {};
+struct Cell {};
 
 }  // namespace Mazemouse
 
