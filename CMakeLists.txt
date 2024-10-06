@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.29)
 project(micromouse)
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(mazemouse
+add_executable(mazemouse_simulator
         src/maze.hpp
         src/game.cpp
         src/maze/Cell.hpp
@@ -20,8 +20,6 @@ add_executable(mazemouse
         src/Simulator.hpp
         src/Simulator/SimGameObject.cpp
         src/Simulator/SimGameObject.hpp
+        src/Mouse/Mouse.hpp
 )
-target_link_libraries(mazemouse sfml-graphics sfml-window sfml-system)
-
-add_executable(demo src/Demo/main.cpp)
-target_link_libraries(demo sfml-graphics sfml-window sfml-system)
+target_link_libraries(mazemouse_simulator sfml-graphics sfml-window sfml-system)

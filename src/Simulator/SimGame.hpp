@@ -11,7 +11,7 @@ constexpr auto SIM_WINDOW_MARGIN_PIXEL = 36;
 constexpr auto SIM_WINDOW_SIDE_LENGTH_PIXEL =
     SIM_MAZE_SIDE_LENGTH_PIXEL + 2 * SIM_WINDOW_MARGIN_PIXEL;
 
-constexpr auto SIM_GAME_FPS = 60;
+constexpr auto SIM_GAME_FPS = 30;
 constexpr auto SIM_GAME_VERTICAL_SYNC_ENABLED = true;
 
 struct SimGamePlugin;

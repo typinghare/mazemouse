@@ -13,9 +13,10 @@ enum class Direction : int {
     LEFT = 0b11
 };
 
-const sf::Vector2i DirectionVectors[4] = {
-    { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 }
-};
+const sf::Vector2i DirectionVectors[4] = { sf::Vector2i{ 0, -1 },
+                                           sf::Vector2i{ 1, 0 },
+                                           sf::Vector2i{ 0, 1 },
+                                           sf::Vector2i{ -1, 0 } };
 
 inline Direction getDirectionByVector(const sf::Vector2i& vector) {
     if (vector.x == 0) {

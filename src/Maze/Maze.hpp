@@ -97,6 +97,7 @@ bool Maze<S, C, E>::isEdgeOpen(
         return false;
     }
 
+    auto e = edge(coord, dir);
     return !edge(coord, dir).hasWall;
 }
 

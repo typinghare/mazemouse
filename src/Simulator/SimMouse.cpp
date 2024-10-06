@@ -20,22 +20,20 @@ sf::Vector2i SimMouse::getNextPosition() const {
     const auto x = position.x;
     const auto y = position.y;
 
-    if (x == 0 && maze.isEdgeOpen(position, Direction::UP)) {
-        return { x, y - 1 };
-    }
-
-    if (y == 0 && maze.isEdgeOpen(position, Direction::RIGHT)) {
+    if (y != 14 && maze.isEdgeOpen(position, Direction::RIGHT)) {
         return { x + 1, y };
     }
 
-    if (x == SIM_MAZE_SIDE_LENGTH - 1 &&
-        maze.isEdgeOpen(position, Direction::DOWN)) {
-        return { x, y + 1 };
+    if (maze.isEdgeOpen(position, Direction::UP)) {
+        return { x, y - 1 };
     }
 
-    if (y == SIM_MAZE_SIDE_LENGTH - 1 &&
-        maze.isEdgeOpen(position, Direction::LEFT)) {
+    if (maze.isEdgeOpen(position, Direction::LEFT)) {
         return { x - 1, y };
+    }
+
+    if (maze.isEdgeOpen(position, Direction::DOWN)) {
+        return { x, y + 1 };
     }
 
     return position;
