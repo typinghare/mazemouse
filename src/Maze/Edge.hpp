@@ -5,6 +5,7 @@ namespace Mazemouse {
 
 struct Edge {
     mutable bool hasWall{ true };
+    mutable bool visited{ false };
 };
 
 }  // namespace Mazemouse

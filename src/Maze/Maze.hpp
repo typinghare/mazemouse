@@ -19,7 +19,15 @@ concept DerivedFromEdge = std::is_base_of_v<Edge, E>;
 template <int S, DerivedFromCell C, DerivedFromEdge E>
 struct Maze {
     C cells[S * S];
+
+    /**
+     * Edges on vertical direction. Corresponding walls are horizontal.
+     */
     E v_edges[(S - 1) * S];
+
+    /**
+     * Edges on horizontal direction. Corresponding walls are vertical.
+     */
     E h_edges[(S - 1) * S];
 
     [[nodiscard]] C& cell(const sf::Vector2i& coord);
@@ -33,7 +41,7 @@ struct Maze {
     hEdgeIndex(const sf::Vector2i& coord, Direction dir);
 
     [[nodiscard]] static bool
-    checkBound(const sf::Vector2i& coord, Direction dir);
+    withinMaze(const sf::Vector2i& coord, Direction dir);
 
     [[nodiscard]] bool
     isEdgeOpen(const sf::Vector2i& coord, Direction dir) const;
@@ -47,7 +55,7 @@ C& Maze<S, C, E>::cell(const sf::Vector2i& coord) {
 template <int S, DerivedFromCell C, DerivedFromEdge E>
 const E&
 Maze<S, C, E>::edge(const sf::Vector2i& coord, const Direction dir) const {
-    if (!checkBound(coord, dir)) {
+    if (!withinMaze(coord, dir)) {
         throw std::invalid_argument(
             "Maze::edge(): coord is out of range: (" + std::to_string(coord.x) +
             ", " + std::to_string(coord.y) + ") " +
@@ -76,7 +84,7 @@ int Maze<S, C, E>::hEdgeIndex(const sf::Vector2i& coord, const Direction dir) {
 }
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
-bool Maze<S, C, E>::checkBound(const sf::Vector2i& coord, const Direction dir) {
+bool Maze<S, C, E>::withinMaze(const sf::Vector2i& coord, const Direction dir) {
     switch (dir) {
         case Direction::UP:
             return coord.y > 0;
@@ -93,11 +101,10 @@ bool Maze<S, C, E>::checkBound(const sf::Vector2i& coord, const Direction dir) {
 template <int S, DerivedFromCell C, DerivedFromEdge E>
 bool Maze<S, C, E>::isEdgeOpen(
     const sf::Vector2i& coord, const Direction dir) const {
-    if (!checkBound(coord, dir)) {
+    if (!withinMaze(coord, dir)) {
         return false;
     }
 
-    auto e = edge(coord, dir);
     return !edge(coord, dir).hasWall;
 }
 

@@ -4,73 +4,70 @@ namespace Mazemouse {
 
 SimMouse::SimMouse(SimGame* sim_game) : SimGamePlugin(sim_game) {
     teleport({ SIM_MOUSE_STARTING_POSITION_X, SIM_MOUSE_STARTING_POSITION_Y });
-    destination = getNextPosition();
 }
 
 void SimMouse::teleport(const sf::Vector2i& position) {
-    this->position = position;
-    position_pixel = {
+    this->entity_position = position;
+    entity_position_pixel = {
         (0.5f + static_cast<float>(position.x)) * SIM_CELL_SIDE_LENGTH_PIXEL,
         (0.5f + static_cast<float>(position.y)) * SIM_CELL_SIDE_LENGTH_PIXEL
     };
 }
 
-sf::Vector2i SimMouse::getNextPosition() const {
-    const auto& maze = game->maze;
-    const auto x = position.x;
-    const auto y = position.y;
-
-    if (y != 14 && maze.isEdgeOpen(position, Direction::RIGHT)) {
-        return { x + 1, y };
-    }
-
-    if (maze.isEdgeOpen(position, Direction::UP)) {
-        return { x, y - 1 };
-    }
-
-    if (maze.isEdgeOpen(position, Direction::LEFT)) {
-        return { x - 1, y };
-    }
-
-    if (maze.isEdgeOpen(position, Direction::DOWN)) {
-        return { x, y + 1 };
-    }
-
-    return position;
-}
-
 void SimMouse::update(const unsigned dt) {
     if (!running) {
+        nextCycle();
         return;
     }
 
-    const auto deltaX = destination.x - position.x;
-    const auto deltaY = destination.y - position.y;
+    const auto deltaX = entity_destination.x - entity_position.x;
+    const auto deltaY = entity_destination.y - entity_position.y;
 
     if (deltaX != 0) {
-        position_pixel.x += static_cast<float>(dt) * SIM_MOUSE_VELOCITY *
-                            static_cast<float>(deltaX);
-    }
-
-    if (deltaY != 0) {
-        position_pixel.y += static_cast<float>(dt) * SIM_MOUSE_VELOCITY *
-                            static_cast<float>(deltaY);
+        entity_position_pixel.x += static_cast<float>(dt) * SIM_MOUSE_VELOCITY *
+                                   static_cast<float>(deltaX);
+    } else if (deltaY != 0) {
+        entity_position_pixel.y += static_cast<float>(dt) * SIM_MOUSE_VELOCITY *
+                                   static_cast<float>(deltaY);
+    } else {
+        return stop();
     }
 
     movingTimeMs += dt;
     const auto maxMovingTimeMs = static_cast<unsigned>(
         std::floor(SIM_CELL_SIDE_LENGTH_PIXEL / SIM_MOUSE_VELOCITY));
     if (movingTimeMs > maxMovingTimeMs) {
-        const auto direction = getDirectionByVector(destination - position);
-        game->maze.edge(position, direction).num_travelled++;
-        teleport(destination);
+        const auto direction =
+            getDirectionByVector(entity_destination - entity_position);
+        game->sim_maze.edge(entity_position, direction).num_travelled++;
+        teleport(entity_destination);
         movingTimeMs = 0;
 
-        destination = getNextPosition();
-        if (destination.x == position.x && destination.y == position.y) {
-            stop();
-        }
+        stop();
     }
+}
+
+bool SimMouse::checkWall(const Direction dir) {
+    const auto abs_dir = getAbsoluteDirection(dir);
+
+    return !game->sim_maze.isEdgeOpen(position, abs_dir);
+}
+
+void SimMouse::moveForward(const int length) {
+    FloodFillMouse::moveForward(length);
+
+    // Let the destination be the updated position
+    entity_destination = position;
+    start();
+}
+
+void SimMouse::turn(const STEERING steering) {}
+
+void SimMouse::nextCycle() { FloodFillMouse::nextCycle(); }
+
+void SimMouse::draw(
+    sf::RenderTarget& target, const sf::RenderStates states) const {
+    SimGamePlugin::draw(target, states);
 }
 
 void SimMouse::renderOnTexture(sf::RenderTexture& render_texture) {
@@ -78,10 +75,11 @@ void SimMouse::renderOnTexture(sf::RenderTexture& render_texture) {
 
     renderEdges(render_texture);
 
-    auto circle = sf::CircleShape(SIM_MOUSE_RADIUS);
+    auto circle = sf::CircleShape(SIM_MOUSE_RADIUS, 3);
     circle.setFillColor(MOUSE_COLOR);
     circle.setOrigin(SIM_MOUSE_RADIUS, SIM_MOUSE_RADIUS);
-    circle.setPosition(position_pixel.x, position_pixel.y);
+    circle.setPosition(entity_position_pixel.x, entity_position_pixel.y);
+    circle.rotate(static_cast<float>(to_int(orientation)) * 90);
 
     render_texture.draw(circle);
 }
@@ -89,7 +87,7 @@ void SimMouse::renderOnTexture(sf::RenderTexture& render_texture) {
 void SimMouse::renderEdges(sf::RenderTexture& render_texture) const {
     static const auto COLOR = sf::Color::White;
 
-    const auto maze = game->maze;
+    const auto maze = game->sim_maze;
     auto rectangle_vertical =
         sf::RectangleShape({ 2, SIM_CELL_SIDE_LENGTH_PIXEL });
     auto rectangle_horizontal =

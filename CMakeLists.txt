@@ -10,6 +10,9 @@ add_executable(mazemouse_simulator
         src/maze/Maze.hpp
         src/maze.hpp
         src/Maze/Direction.hpp
+        src/Mouse/Mouse.hpp
+        src/Mouse/FloodFillMouse.hpp
+        src/Mouse/AStarMouse.hpp
         src/Simulator/SimGame.cpp
         src/Simulator/SimGame.hpp
         src/Simulator/SimMaze.cpp
@@ -20,6 +23,5 @@ add_executable(mazemouse_simulator
         src/Simulator.hpp
         src/Simulator/SimGameObject.cpp
         src/Simulator/SimGameObject.hpp
-        src/Mouse/Mouse.hpp
 )
 target_link_libraries(mazemouse_simulator sfml-graphics sfml-window sfml-system)

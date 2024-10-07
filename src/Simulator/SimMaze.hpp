@@ -13,7 +13,7 @@ constexpr auto SIM_MAZE_SIDE_LENGTH_PIXEL =
     SIM_MAZE_SIDE_LENGTH * SIM_CELL_SIDE_LENGTH_PIXEL;
 constexpr auto SIM_WALL_THICKNESS_PIXEL = 4;
 
-constexpr auto SIM_MAZE_RANDOM_SEED = 400;
+constexpr auto SIM_MAZE_RANDOM_SEED = 900;
 
 struct SimCell : Cell {};
 

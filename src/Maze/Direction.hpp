@@ -18,6 +18,8 @@ const sf::Vector2i DirectionVectors[4] = { sf::Vector2i{ 0, -1 },
                                            sf::Vector2i{ 0, 1 },
                                            sf::Vector2i{ -1, 0 } };
 
+inline int to_int(const Direction dir) { return static_cast<int>(dir); }
+
 inline Direction getDirectionByVector(const sf::Vector2i& vector) {
     if (vector.x == 0) {
         if (vector.y == -1) {

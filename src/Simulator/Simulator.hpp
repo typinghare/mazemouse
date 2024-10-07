@@ -10,7 +10,6 @@ inline void runSimGame() {
     auto game = SimGame();
     const auto mouse = std::make_shared<SimMouse>(&game);
     game.addPlugin(mouse);
-    mouse->start();
     game.run();
 }
 

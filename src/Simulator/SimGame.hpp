@@ -17,7 +17,7 @@ constexpr auto SIM_GAME_VERTICAL_SYNC_ENABLED = true;
 struct SimGamePlugin;
 
 struct SimGame {
-    SimMaze maze;
+    SimMaze sim_maze;
     std::vector<std::shared_ptr<SimGamePlugin>> plugins;
 
     void run() const;

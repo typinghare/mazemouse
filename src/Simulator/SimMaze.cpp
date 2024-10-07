@@ -128,9 +128,6 @@ void SimMaze::generatePaths(const int seed) const {
             }
         }
     }
-
-    edge({ 0, 15 }, Direction::RIGHT).hasWall = false;
-    edge({ 1, 14 }, Direction::RIGHT).hasWall = false;
 }
 
 void SimMaze::renderCellsTexture(sf::RenderTexture& render_texture) {

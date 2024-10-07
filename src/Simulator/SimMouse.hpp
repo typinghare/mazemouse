@@ -1,5 +1,6 @@
 #ifndef SIMMOUSE_HPP
 #define SIMMOUSE_HPP
+#include "../Mouse/AStarMouse.hpp"
 #include "SimGame.hpp"
 
 namespace Mazemouse {
@@ -10,12 +11,13 @@ constexpr auto SIM_MOUSE_VELOCITY = 0.4f;
 constexpr auto SIM_MOUSE_STARTING_POSITION_X = 0;
 constexpr auto SIM_MOUSE_STARTING_POSITION_Y = SIM_MAZE_SIDE_LENGTH - 1;
 
-struct SimMouse final : SimGamePlugin {
+struct SimMouse final : SimGamePlugin,
+                        AStarMouse<SIM_MAZE_SIDE_LENGTH, FloodFillCell, Edge> {
     bool running{ false };
     unsigned movingTimeMs{ 0 };
-    sf::Vector2i position{ 0, 0 };
-    sf::Vector2i destination{ 0, 0 };
-    sf::Vector2f position_pixel{ 0, 0 };
+    sf::Vector2i entity_position{ 0, 0 };
+    sf::Vector2i entity_destination{ 0, 0 };
+    sf::Vector2f entity_position_pixel{ 0, 0 };
 
     explicit SimMouse(SimGame* sim_game);
 
@@ -27,9 +29,17 @@ struct SimMouse final : SimGamePlugin {
 
     void teleport(const sf::Vector2i& position);
 
-    [[nodiscard]] sf::Vector2i getNextPosition() const;
-
     void update(unsigned dt) override;
+
+    bool checkWall(Direction dir) override;
+
+    void moveForward(int length) override;
+
+    void turn(STEERING steering) override;
+
+    void nextCycle() override;
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
  protected:
     void renderOnTexture(sf::RenderTexture& render_texture) override;

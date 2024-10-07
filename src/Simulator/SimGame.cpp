@@ -38,7 +38,7 @@ void SimGame::drawMaze(sf::RenderTarget& target) const {
     sf::RenderTexture maze_texture{};
     maze_texture.create(SIM_MAZE_SIDE_LENGTH_PIXEL, SIM_MAZE_SIDE_LENGTH_PIXEL);
     maze_texture.clear(sf::Color::Transparent);
-    maze_texture.draw(maze);
+    maze_texture.draw(sim_maze);
     maze_texture.display();
 
     for (const auto& plugin : plugins) {
