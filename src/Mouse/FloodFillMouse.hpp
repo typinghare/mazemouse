@@ -14,11 +14,20 @@ concept DerivedFromFloodFillCell = std::is_base_of_v<FloodFillCell, C>;
 
 template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
 struct FloodFillMouse : Mouse<S, C, E> {
+    FloodFillMouse() : Mouse<S, C, E>() {
+        ++this->maze.cell(this->position).num_visited;
+    }
+
     void nextCycle() override;
+
     void moveForward(int length) override;
 
  protected:
-    void takeOneStep(bool turned);
+    void takeOneStep();
+
+    bool canMove(Direction abs_dir);
+
+    C& getCellOn(Direction abs_dir);
 };
 
 template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
@@ -51,7 +60,7 @@ void FloodFillMouse<S, C, E>::nextCycle() {
     updateWallMemory(Direction::RIGHT);
     updateWallMemory(Direction::LEFT);
 
-    takeOneStep(false);
+    takeOneStep();
 }
 
 template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
@@ -61,61 +70,62 @@ void FloodFillMouse<S, C, E>::moveForward(int length) {
     }
 
     Mouse<S, C, E>::moveForward(1);
+
+    if (this->exploring) {
+        ++this->maze.cell(this->position).num_visited;
+    }
 }
 
 template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
-void FloodFillMouse<S, C, E>::takeOneStep(const bool turned) {
+void FloodFillMouse<S, C, E>::takeOneStep() {
     // Absolute directions
     const auto forward = this->orientation;
     const auto rightward = this->getAbsoluteDirection(Direction::RIGHT);
     const auto backward = this->getAbsoluteDirection(Direction::DOWN);
+    const auto leftward = this->getAbsoluteDirection(Direction::LEFT);
 
-    auto can_move_forward = this->maze.withinMaze(this->position, forward) &&
-                            !this->maze.edge(this->position, forward).hasWall;
-    auto can_move_rightward =
-        this->maze.withinMaze(this->position, rightward) &&
-        !this->maze.edge(this->position, rightward).hasWall;
-    auto can_move_backward = this->maze.withinMaze(this->position, backward) &&
-                             !this->maze.edge(this->position, backward).hasWall;
-    auto forward_visited =
-        can_move_forward ? this->maze.edge(this->position, forward).visited
-                         : -1;
-    auto rightward_visited =
-        can_move_rightward ? this->maze.edge(this->position, rightward).visited
-                           : -1;
-    auto backward_visited =
-        can_move_backward ? this->maze.edge(this->position, backward).visited
-                          : -1;
+    auto can_move_forward = canMove(forward);
+    auto can_move_rightward = canMove(rightward);
+    auto can_move_backward = canMove(backward);
+    auto can_move_leftward = canMove(leftward);
+    auto forward_num_visited =
+        can_move_forward ? getCellOn(forward).num_visited : INT_MAX;
+    auto rightward_num_visited =
+        can_move_rightward ? getCellOn(rightward).num_visited : INT_MAX;
+    auto backward_num_visited =
+        can_move_backward ? getCellOn(backward).num_visited : INT_MAX;
+    auto leftward_num_visited =
+        can_move_leftward ? getCellOn(leftward).num_visited : INT_MAX;
 
-    // Priority:
-    // 1. UNVISITED > VISITED
-    // 2. FORWARD > RIGHT > TURN BACK
-    if (forward_visited == 0) {
-        return this->moveForward(1);
+    auto next_abs_dir = this->orientation;
+    auto max = forward_num_visited;
+    if (rightward_num_visited < max) {
+        next_abs_dir = rightward;
+        max = rightward_num_visited;
+    }
+    if (backward_num_visited < max) {
+        next_abs_dir = backward;
+        max = backward_num_visited;
+    }
+    if (leftward_num_visited < max) {
+        next_abs_dir = leftward;
     }
 
-    if (rightward_visited == 0) {
-        this->turnTo(rightward);
-        return this->moveForward(1);
-    }
-
-    if (backward_visited == 0) {
-        this->turnTo(backward);
-        return this->moveForward(1);
-    }
-
-    // If all possible directions are either visited or blocked, move to the
-    // least visited option
-    if (can_move_forward) {
-        return this->moveForward(1);  // Default move forward
-    }
-
-    if (!turned) {
-        // Turn around to prevent immediate backtracking in loops
-        this->turnTo(backward);
-        takeOneStep(true);  // Recursive call with a turn flag set to true
-    }
+    this->turnTo(next_abs_dir);
+    this->moveForward(1);
 }
+
+template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
+bool FloodFillMouse<S, C, E>::canMove(Direction abs_dir) {
+    return this->maze.withinMaze(this->position, abs_dir) &&
+           !this->maze.edge(this->position, abs_dir).hasWall;
+}
+
+template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
+C& FloodFillMouse<S, C, E>::getCellOn(const Direction abs_dir) {
+    return this->maze.cell(this->position + DirectionVectors[to_int(abs_dir)]);
+}
+
 
 }  // namespace Mazemouse
 
