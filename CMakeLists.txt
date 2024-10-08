@@ -3,25 +3,17 @@ project(micromouse)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(mazemouse_simulator
-        src/maze.hpp
-        src/game.cpp
-        src/maze/Cell.hpp
-        src/maze/Edge.hpp
-        src/maze/Maze.hpp
-        src/maze.hpp
-        src/Maze/Direction.hpp
+        src/Maze/Dir4.hpp
+        src/Maze/Maze.hpp
+        src/simulator.cpp
         src/Mouse/Mouse.hpp
         src/Mouse/FloodFillMouse.hpp
         src/Mouse/AStarMouse.hpp
-        src/Simulator/SimGame.cpp
-        src/Simulator/SimGame.hpp
-        src/Simulator/SimMaze.cpp
-        src/Simulator/SimMaze.hpp
-        src/Simulator/SimMouse.cpp
-        src/Simulator/SimMouse.hpp
-        src/Simulator/Simulator.hpp
+        src/Simulator/Game.cpp
+        src/Simulator/Game.hpp
+        src/Simulator/MazePlugin.cpp
+        src/Simulator/MazePlugin.hpp
         src/Simulator.hpp
-        src/Simulator/SimGameObject.cpp
-        src/Simulator/SimGameObject.hpp
+        src/Mouse/SemiFinishedMouse.hpp
 )
 target_link_libraries(mazemouse_simulator sfml-graphics sfml-window sfml-system)

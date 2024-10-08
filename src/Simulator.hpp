@@ -1,6 +1,7 @@
-#ifndef SIMULATOR_INDEX_HPP
-#define SIMULATOR_INDEX_HPP
+#ifndef SIMULATOR_HPP
+#define SIMULATOR_HPP
 
-#include "Simulator/Simulator.hpp"
+#include "Simulator/Game.hpp"
+#include "Simulator/MazePlugin.hpp"
 
 #endif
