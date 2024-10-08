@@ -5,6 +5,10 @@
 # - g++ >= 3.30.0
 # - cmake >=3.30.0
 # - ninja >=1.12.0
+# - SFML >= 2.6.1
+#
+# Setup CPATH and LIBRARY_PATH so that the compiler can find the header files
+# and source files of installed third-libraries.
 #
 CMAKE = cmake
 CMAKE_MAKE_PROGRAM = ninja
@@ -22,7 +26,7 @@ $(SIMULATOR_APP):
 	$(CMAKE) $(CMAKE_OPTS)
 	$(CMAKE) --build $(CMAKE_DIR) --target $(SIMULATOR_APP)
 
-run:
+run: $(SIMULATOR_APP)
 	$(CMAKE_DIR)/$(SIMULATOR_APP)
 
 clean:
