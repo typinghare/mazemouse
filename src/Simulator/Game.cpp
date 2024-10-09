@@ -40,14 +40,4 @@ void Game::run() const {
     }
 }
 
-std::shared_ptr<GamePlugin> Game::getPlugin(const std::string& name) const {
-    for (const auto& plugin : plugins_) {
-        if (plugin->getName() == name) {
-            return plugin;
-        }
-    }
-
-    return nullptr;
-}
-
 }  // namespace MazemouseSimulator

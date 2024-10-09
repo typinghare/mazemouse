@@ -103,12 +103,23 @@ class Game {
         plugins_.push_back(plugin);
     }
 
-    [[nodiscard]] std::shared_ptr<GamePlugin>
-    getPlugin(const std::string& name) const;
+    template <typename P>
+    [[nodiscard]] std::shared_ptr<P> getPlugin(const std::string& name) const;
 };
 
 inline GamePlugin::GamePlugin(Game* game) :
     GameObject(game->getOptions().windowSize), game_(game) {}
+
+template <typename P>
+std::shared_ptr<P> Game::getPlugin(const std::string& name) const {
+    for (const auto& plugin : plugins_) {
+        if (plugin->getName() == name) {
+            return std::dynamic_pointer_cast<P>(plugin);
+        }
+    }
+
+    return nullptr;
+}
 
 }  // namespace MazemouseSimulator
 

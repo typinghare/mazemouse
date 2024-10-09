@@ -9,7 +9,7 @@ constexpr auto MOUSE_STARTING_ORIENTATION = Dir4::Up;
 
 enum class MouseState : int {
     // Stop still
-    STOPPED,
+    Stopped,
 
     // Actively exploring the maze
     Exploring,
@@ -54,9 +54,9 @@ struct MouseHardwareInterface {
      * This function should be implemented to move the mouse forward in its
      * current orientation. The length parameter indicates how far to move.
      *
-     * @param length The distance to move forward.
+     * @param step The distance to move forward.
      */
-    virtual void hardwareMoveForward(int length) = 0;
+    virtual void hardwareMoveForward(int step) = 0;
 
     /**
      * @brief Turns the mouse relative to its current direction.
@@ -109,7 +109,7 @@ struct Mouse : MouseHardwareInterface {
      */
     Dir4 orientation{ MOUSE_STARTING_ORIENTATION };
 
-    MouseState state{ MouseState::STOPPED };
+    MouseState state{ MouseState::Stopped };
 
     /**
      * @brief Calculates the absolute direction based on the current
@@ -145,7 +145,9 @@ struct Mouse : MouseHardwareInterface {
 
     virtual void turn(Dir4 target_orientation);
 
-    virtual void nextCycle() = 0;
+    virtual void nextExploringCycle() = 0;
+
+    virtual void nextRushingCycle() = 0;
 };
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>

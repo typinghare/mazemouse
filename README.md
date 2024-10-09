@@ -2,7 +2,7 @@
 
 ## TODO LIST
 
-- [ ] Carved Paths
-- [ ] Improve simulator
-- [ ] Moves merging
+- [x] Carved Paths
+- [x] Improve simulator
+- [x] Moves merging
 - [ ] A* (If time allowed)

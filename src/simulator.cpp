@@ -14,6 +14,7 @@ int main() {
     game.usePlugin<WallMazePlugin>();
     game.usePlugin<PeripheralWallMazePlugin>();
     game.usePlugin<MouseMazePlugin>();
+    game.usePlugin<StateDisplayMazePlugin>();
     game.run();
 
     return 0;
