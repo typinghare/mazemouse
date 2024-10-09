@@ -13,14 +13,17 @@ constexpr auto MAZE_MARGIN_PIXEL = 36;
 constexpr auto CELL_SIDE_LENGTH_PIXEL = 36;
 constexpr auto WALL_THICKNESS_PIXEL = 4;
 constexpr auto MOUSE_RADIUS = CELL_SIDE_LENGTH_PIXEL / 3;
-constexpr auto MOUSE_EXPLORING_VELOCITY = 0.3f;
-constexpr auto MOUSE_RUSHING_VELOCITY = 0.8f;
+constexpr auto MOUSE_EXPLORING_VELOCITY = 288.f / 1000;
+constexpr auto MOUSE_RUSHING_VELOCITY = 576.f / 1000;
 
 const auto PERIPHERAL_WALL_MAZE_PLUGIN_NAME =
     "PERIPHERAL_WALL_MAZE_PLUGIN_NAME";
 const auto FLOOR_MAZE_PLUGIN_NAME = "FLOOR_MAZE_PLUGIN_NAME";
 const auto WALL_MAZE_PLUGIN_NAME = "WALL_MAZE_PLUGIN_NAME";
 const auto MOUSE_MAZE_PLUGIN_NAME = "MOUSE_MAZE_PLUGIN_NAME";
+const auto STATE_DISPLAY_PLUGIN_NAME = "STATE_DISPLAY_PLUGIN_NAME";
+
+constexpr auto MAZE_PATH_CURVING_SEED = 1919810;
 
 class Game;
 
@@ -74,7 +77,7 @@ class FloorMazePlugin final : public MazePlugin {
 class WallMazePlugin final : public MazePlugin {
  public:
     explicit WallMazePlugin(Game* game) : MazePlugin(game, MAZE_MARGIN_PIXEL) {
-        curvePaths(900);
+        carvePaths(MAZE_PATH_CURVING_SEED);
         render();
     }
 
@@ -84,7 +87,7 @@ class WallMazePlugin final : public MazePlugin {
     void renderOnTexture(sf::RenderTexture& render_texture) override;
 
  public:
-    void curvePaths(int seed) const;
+    void carvePaths(int seed) const;
 };
 
 class MouseMazePlugin final : public MazePlugin,
@@ -100,9 +103,11 @@ class MouseMazePlugin final : public MazePlugin,
 
     void hardwareTurn(Dir4 relative_dir) override;
 
-    void nextCycle() override;
+    void nextExploringCycle() override;
 
     void moveForward(int length) override;
+
+    [[nodiscard]] MouseState getState() const { return state; }
 
  protected:
     void renderOnTexture(sf::RenderTexture& render_texture) override;
@@ -111,10 +116,15 @@ class MouseMazePlugin final : public MazePlugin,
 
  private:
     bool running_{ false };
+
     unsigned moving_time_ms_{ 0 };
+
     Dir4 entity_orientation_{ Dir4::Up };
+
     sf::Vector2i entity_position_{ 0, 0 };
+
     sf::Vector2i entity_destination_{ 0, 0 };
+
     sf::Vector2f entity_position_pixel_{ 0, 0 };
 
     void renderEdges(sf::RenderTexture& render_texture) const;
@@ -122,6 +132,26 @@ class MouseMazePlugin final : public MazePlugin,
     void renderMouse(sf::RenderTexture& render_texture) const;
 
     void teleport(const sf::Vector2i& position);
+};
+
+class StateDisplayMazePlugin final : public MazePlugin {
+ public:
+    explicit StateDisplayMazePlugin(Game* game) : MazePlugin(game, 5) {
+        font.loadFromFile("../assets/RobotoSlab-Regular.ttf");
+    }
+
+    std::string getName() override { return STATE_DISPLAY_PLUGIN_NAME; }
+
+    void update(int dt) override { render(); }
+
+ protected:
+    void renderOnTexture(sf::RenderTexture& render_texture) override;
+
+    static std::string getStringByState(const MouseState& state);
+
+    static sf::Color getColorByState(const MouseState& state);
+
+    sf::Font font;
 };
 
 }  // namespace MazemouseSimulator

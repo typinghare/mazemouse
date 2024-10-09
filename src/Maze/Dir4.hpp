@@ -8,6 +8,19 @@ namespace Mazemouse {
  */
 enum class Dir4 : int { Up, Right, Down, Left };
 
+/**
+ * @brief Converts a direction to its corresponding vector.
+ *
+ * This function returns the 2D unit vector representation of the given
+ * direction.
+ * - Up: {0, -1}
+ * - Right: {1, 0}
+ * - Down: {0, 1}
+ * - Left: {-1, 0}
+ *
+ * @param dir The direction to be converted.
+ * @return A vector representing the direction as a vector.
+ */
 inline sf::Vector2i get_vector(const Dir4 dir) {
     switch (dir) {
         case Dir4::Up:
@@ -21,6 +34,20 @@ inline sf::Vector2i get_vector(const Dir4 dir) {
     }
 }
 
+/**
+ * @brief Converts a vector to its corresponding direction.
+ *
+ * This function returns the direction corresponding to the given 2D unit
+ * vector.
+ * - {0, -1} maps to Up.
+ * - {1, 0} maps to Right.
+ * - {0, 1} maps to Down.
+ * - {-1, 0} maps to Left.
+ *
+ * @param vector The 2D vector to be converted to a direction.
+ * @return A `Dir4` value representing the direction.
+ * @throws std::invalid_argument if the vector is not a valid unit vector.
+ */
 inline Dir4 get_dir(const sf::Vector2i vector) {
     if (vector.x == 0) {
         return vector.y == -1 ? Dir4::Up : Dir4::Down;
@@ -62,7 +89,7 @@ inline Dir4 operator+(const Dir4 dir1, const Dir4 dir2) {
  */
 inline Dir4 operator-(const Dir4 dir1, const Dir4 dir2) {
     return static_cast<Dir4>(
-        (static_cast<int>(dir1) - static_cast<int>(dir2)) % 4);
+        (static_cast<int>(dir1) - static_cast<int>(dir2) + 4) % 4);
 }
 
 }  // namespace Mazemouse

@@ -1,4 +1,5 @@
 #include "MazePlugin.hpp"
+#include <random>
 
 namespace MazemouseSimulator {
 
@@ -108,19 +109,104 @@ void WallMazePlugin::renderOnTexture(sf::RenderTexture& render_texture) {
     }
 }
 
-void WallMazePlugin::curvePaths(const int seed) const {
+void WallMazePlugin::carvePaths(const int seed) const {
     const auto& maze = game_->getRealMaze();
+    constexpr auto S = REAL_MAZE_SIDE_LENGTH;
 
-    for (int row = 0; row < REAL_MAZE_SIDE_LENGTH - 1; ++row) {
-        for (int col = 0; col < REAL_MAZE_SIDE_LENGTH; ++col) {
-            maze.edge({ col, row }, Dir4::Down).hasWall = false;
+    std::mt19937 rng(seed);
+    std::vector visited(S * S, false);
+    std::stack<sf::Vector2i> cell_stack;
+    sf::Vector2i current(0, 15);
+    cell_stack.push(current);
+    visited[current.y * S + current.x] = true;
+
+    constexpr int halfSide = S / 2;
+    const std::vector centerCells = {
+        sf::Vector2i(halfSide - 1, halfSide - 1),
+        sf::Vector2i(halfSide - 1, halfSide),
+        sf::Vector2i(halfSide, halfSide),
+        sf::Vector2i(halfSide, halfSide - 1),
+    };
+    bool reached_center = false;
+
+    while (!cell_stack.empty()) {
+        current = cell_stack.top();
+
+        // Check if we've reached any of the center cells
+        for (const auto& centerCell : centerCells) {
+            if (current == centerCell) {
+                reached_center = true;
+                break;
+            }
+        }
+
+        // Get possible directions
+        std::vector<Dir4> possible_dirs;
+        for (int i = 0; i < 4; i++) {
+            auto dir = static_cast<Dir4>(i);
+            const sf::Vector2i next =
+                current + get_vector(static_cast<Dir4>(i));
+
+            // Check if the next cell is within bounds
+            if (next.x >= 0 && next.x < S && next.y >= 0 && next.y < S) {
+                if (!visited[next.y * S + next.x]) {
+                    possible_dirs.push_back(dir);
+                }
+            }
+        }
+
+        if (!possible_dirs.empty()) {
+            std::uniform_int_distribution dist(
+                0, static_cast<int>(possible_dirs.size()) - 1);
+            const Dir4 chosenDir = possible_dirs[dist(rng)];
+            maze.edge(current, chosenDir).hasWall = false;
+
+            sf::Vector2i next = current + get_vector(chosenDir);
+            visited[next.y * S + next.x] = true;
+            cell_stack.push(next);
+        } else {
+            cell_stack.pop();
         }
     }
 
-    for (int row = 0; row < REAL_MAZE_SIDE_LENGTH; ++row) {
-        for (int col = 0; col < REAL_MAZE_SIDE_LENGTH - 1; ++col) {
-            maze.edge({ col, row }, Dir4::Right).hasWall = false;
-        }
+    if (!reached_center) {
+        std::vector visited2(S * S, false);
+        std::function<bool(sf::Vector2i)> findPath =
+            [&](const sf::Vector2i pos) -> bool {
+            visited2[pos.y * S + pos.x] = true;
+
+            for (const auto& centerCell : centerCells) {
+                if (pos == centerCell)
+                    return true;
+            }
+
+            // Try all directions
+            for (int i = 0; i < 4; i++) {
+                const auto dir = static_cast<Dir4>(i);
+                const sf::Vector2i next = pos + get_vector(dir);
+
+                if (next.x >= 0 && next.x < S && next.y >= 0 && next.y < S &&
+                    !visited2[next.y * S + next.x]) {
+                    const Edge& currentEdge = maze.edge(pos, dir);
+                    currentEdge.hasWall = false;
+
+                    if (findPath(next))
+                        return true;
+
+                    currentEdge.hasWall = true;
+                }
+            }
+            return false;
+        };
+
+        findPath(sf::Vector2i(0, 15));
+    }
+
+    // Connect center cells to each other
+    auto dir = Dir4::Down;
+    for (auto centerCell : centerCells) {
+        maze.edge(centerCell, dir).hasWall = false;
+        dir = dir + Dir4::Left;
     }
 }
 MouseMazePlugin::MouseMazePlugin(Game* game) :
@@ -148,7 +234,9 @@ void MouseMazePlugin::hardwareTurn(Dir4 relative_dir) {
     entity_orientation_ = orientation;
 }
 
-void MouseMazePlugin::nextCycle() { SemiFinishedMouse::nextCycle(); }
+void MouseMazePlugin::nextExploringCycle() {
+    SemiFinishedMouse::nextExploringCycle();
+}
 
 void MouseMazePlugin::moveForward(const int length) {
     FloodFillMouse::moveForward(length);
@@ -164,7 +252,15 @@ void MouseMazePlugin::update(const int dt) {
     render();
 
     if (!running_) {
-        nextCycle();
+        if (state == MouseState::Exploring ||
+            state == MouseState::ReturningToStart) {
+            nextExploringCycle();
+        } else if (state == MouseState::RushingToFinish) {
+            nextRushingCycle();
+        } else if (state == MouseState::Stopped) {
+            running_ = false;
+            return;
+        }
     }
 
     const auto velocity = this->state == MouseState::RushingToFinish
@@ -173,12 +269,17 @@ void MouseMazePlugin::update(const int dt) {
     const auto deltaX = entity_destination_.x - entity_position_.x;
     const auto deltaY = entity_destination_.y - entity_position_.y;
 
+    int step;
     if (deltaX != 0) {
+        const auto velocitySign = static_cast<float>(deltaX > 0 ? 1 : -1);
         entity_position_pixel_.x +=
-            static_cast<float>(dt) * velocity * static_cast<float>(deltaX);
+            static_cast<float>(dt) * velocity * velocitySign;
+        step = std::abs(deltaX);
     } else if (deltaY != 0) {
+        const auto velocitySign = static_cast<float>(deltaY > 0 ? 1 : -1);
         entity_position_pixel_.y +=
-            static_cast<float>(dt) * velocity * static_cast<float>(deltaY);
+            static_cast<float>(dt) * velocity * velocitySign;
+        step = std::abs(deltaY);
     } else {
         running_ = false;
         return;
@@ -186,9 +287,17 @@ void MouseMazePlugin::update(const int dt) {
 
     moving_time_ms_ += dt;
     const auto maxMovingTimeMs =
-        static_cast<unsigned>(std::floor(CELL_SIDE_LENGTH_PIXEL / velocity));
+        static_cast<unsigned>(std::floor(CELL_SIDE_LENGTH_PIXEL / velocity)) *
+        step;
     if (moving_time_ms_ > maxMovingTimeMs) {
-        const auto dirVector = entity_destination_ - entity_position_;
+        auto dirVector = entity_destination_ - entity_position_;
+        if (dirVector.x != 0) {
+            dirVector.x = dirVector.x > 0 ? 1 : -1;
+        }
+        if (dirVector.y != 0) {
+            dirVector.y = dirVector.y > 0 ? 1 : -1;
+        }
+
         const auto dir = get_dir(dirVector);
         game_->getRealMaze().edge(entity_position_, dir).num_traveled++;
         teleport(entity_destination_);
@@ -257,6 +366,52 @@ void MouseMazePlugin::teleport(const sf::Vector2i& position) {
         (0.5f + static_cast<float>(position.x)) * CELL_SIDE_LENGTH_PIXEL,
         (0.5f + static_cast<float>(position.y)) * CELL_SIDE_LENGTH_PIXEL
     };
+}
+
+void StateDisplayMazePlugin::renderOnTexture(
+    sf::RenderTexture& render_texture) {
+    const auto state =
+        this->game_->getPlugin<MouseMazePlugin>(MOUSE_MAZE_PLUGIN_NAME)
+            ->getState();
+
+    auto text = sf::Text();
+    text.setFont(font);
+    text.setString(getStringByState(state));
+    text.setCharacterSize(20);
+    text.setFillColor(getColorByState(state));
+
+    render_texture.draw(text);
+}
+
+std::string StateDisplayMazePlugin::getStringByState(const MouseState& state) {
+    switch (state) {
+        case MouseState::Stopped:
+            return "STOPPED";
+        case MouseState::Exploring:
+            return "EXPLORING";
+        case MouseState::ReturningToStart:
+            return "RETURNING TO START";
+        case MouseState::RushingToFinish:
+            return "RUSHING TO FINISH";
+    }
+}
+
+sf::Color StateDisplayMazePlugin::getColorByState(const MouseState& state) {
+    static const auto COLOR_STOPPED = sf::Color(239, 71, 111);
+    static const auto COLOR_EXPLORING = sf::Color(255, 209, 102);
+    static const auto COLOR_RETURNING_TO_START = sf::Color(17, 138, 178);
+    static const auto COLOR_RUSHING_TO_FINISH = sf::Color(6, 214, 160);
+
+    switch (state) {
+        case MouseState::Stopped:
+            return COLOR_STOPPED;
+        case MouseState::Exploring:
+            return COLOR_EXPLORING;
+        case MouseState::ReturningToStart:
+            return COLOR_RETURNING_TO_START;
+        case MouseState::RushingToFinish:
+            return COLOR_RUSHING_TO_FINISH;
+    }
 }
 
 }  // namespace MazemouseSimulator

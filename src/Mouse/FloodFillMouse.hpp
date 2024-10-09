@@ -1,6 +1,7 @@
 #ifndef FLOOD_FILL_MOUSE_HPP
 #define FLOOD_FILL_MOUSE_HPP
 
+#include <iostream>
 #include <stack>
 #include "Mouse.hpp"
 
@@ -19,7 +20,7 @@ struct FloodFillMouse : Mouse<S, C, E> {
         const sf::Vector2i startingPosition, const Dir4 startingOrientation) :
         Mouse<S, C, E>(startingPosition, startingOrientation){};
 
-    void nextCycle() override;
+    void nextExploringCycle() override;
 
     void moveForward(int length) override;
 
@@ -42,7 +43,7 @@ struct FloodFillMouse : Mouse<S, C, E> {
 };
 
 template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
-void FloodFillMouse<S, C, E>::nextCycle() {
+void FloodFillMouse<S, C, E>::nextExploringCycle() {
     if (this->state == MouseState::Exploring) {
         if (hasArrivedAtFinish()) {
             this->state = MouseState::ReturningToStart;

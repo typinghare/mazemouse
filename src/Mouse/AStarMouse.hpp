@@ -11,32 +11,42 @@ class AStarMouse : public FloodFillMouse<S, C, E> {
         const sf::Vector2i startingPosition, const Dir4 startingOrientation) :
         FloodFillMouse<S, C, E>(startingPosition, startingOrientation){};
 
-    void nextCycle() override;
+    void nextExploringCycle() override;
+
+    void nextRushingCycle() override;
 
  protected:
     std::vector<Dir4> vector{};
-    int step{ 0 };
+
+    int total_step{ 0 };
 };
 
 template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
-void AStarMouse<S, C, E>::nextCycle() {
-    FloodFillMouse<S, C, E>::nextCycle();
+void AStarMouse<S, C, E>::nextExploringCycle() {
+    FloodFillMouse<S, C, E>::nextExploringCycle();
 
     if (this->state == MouseState::ReturningToStart && vector.empty()) {
+        // Copy the stack
         vector = this->stack;
+    }
+}
+
+template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
+void AStarMouse<S, C, E>::nextRushingCycle() {
+    if (this->hasArrivedAtFinish()) {
+        this->state = MouseState::Stopped;
         return;
     }
 
-    if (this->state == MouseState::RushingToFinish) {
-        if (this->hasArrivedAtFinish()) {
-            this->state = MouseState::STOPPED;
-            return;
-        }
+    const auto absolute_dir = vector[total_step++];
+    this->turn(absolute_dir);
 
-        const auto absolute_dir = vector[step++];
-        this->turn(absolute_dir);
-        this->moveForward(1);
+    int step = 1;
+    while (total_step < vector.size() && vector[total_step] == absolute_dir) {
+        step++;
+        total_step++;
     }
+    this->moveForward(step);
 }
 
 }  // namespace Mazemouse
