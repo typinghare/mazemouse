@@ -67,6 +67,19 @@ void FloorMazePlugin::renderOnTexture(sf::RenderTexture& render_texture) {
             render_texture.draw(square);
         }
     }
+
+    renderGoalArea(render_texture);
+}
+
+void FloorMazePlugin::renderGoalArea(sf::RenderTexture& render_texture) {
+    static const auto COLOR = sf::Color(239, 71, 111, 125);
+
+    constexpr auto G = CELL_SIDE_LENGTH_PIXEL * (REAL_MAZE_SIDE_LENGTH / 2 - 1);
+    sf::RectangleShape goalArea(
+        { CELL_SIDE_LENGTH_PIXEL * 2, CELL_SIDE_LENGTH_PIXEL * 2 });
+    goalArea.setPosition(G, G);
+    goalArea.setFillColor(COLOR);
+    render_texture.draw(goalArea);
 }
 
 void WallMazePlugin::renderOnTexture(sf::RenderTexture& render_texture) {
@@ -325,7 +338,7 @@ void MouseMazePlugin::renderEdges(sf::RenderTexture& render_texture) const {
                     { static_cast<float>(col + 0.5) * CELL_SIDE_LENGTH_PIXEL,
                       static_cast<float>(row + 0.5) * CELL_SIDE_LENGTH_PIXEL });
                 rectangle_vertical.setFillColor(sf::Color(
-                    255, 255, 255, std::min(255, 205 + num_traveled * 10)));
+                    255, 255, 255, std::min(255, 215 + num_traveled * 10)));
                 render_texture.draw(rectangle_vertical);
             }
         }
@@ -341,7 +354,7 @@ void MouseMazePlugin::renderEdges(sf::RenderTexture& render_texture) const {
                     { static_cast<float>(col + 0.5) * CELL_SIDE_LENGTH_PIXEL,
                       static_cast<float>(row + 0.5) * CELL_SIDE_LENGTH_PIXEL });
                 rectangle_horizontal.setFillColor(sf::Color(
-                    255, 255, 255, std::min(255, 205 + num_traveled * 10)));
+                    255, 255, 255, std::min(255, 215 + num_traveled * 10)));
                 render_texture.draw(rectangle_horizontal);
             }
         }
@@ -377,7 +390,7 @@ void StateDisplayMazePlugin::renderOnTexture(
     auto text = sf::Text();
     text.setFont(font);
     text.setString(getStringByState(state));
-    text.setCharacterSize(20);
+    text.setCharacterSize(30);
     text.setFillColor(getColorByState(state));
 
     render_texture.draw(text);

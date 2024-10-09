@@ -9,12 +9,14 @@ using namespace Mazemouse;
 
 namespace MazemouseSimulator {
 
-constexpr auto MAZE_MARGIN_PIXEL = 36;
 constexpr auto CELL_SIDE_LENGTH_PIXEL = 36;
+constexpr auto MAZE_MARGIN_PIXEL = 2 * CELL_SIDE_LENGTH_PIXEL;
 constexpr auto WALL_THICKNESS_PIXEL = 4;
 constexpr auto MOUSE_RADIUS = CELL_SIDE_LENGTH_PIXEL / 3;
 constexpr auto MOUSE_EXPLORING_VELOCITY = 288.f / 1000;
 constexpr auto MOUSE_RUSHING_VELOCITY = 576.f / 1000;
+
+const auto ROBOTO_SLAB_REGULAR_FONT_PATH = "../assets/RobotoSlab-Regular.ttf";
 
 const auto PERIPHERAL_WALL_MAZE_PLUGIN_NAME =
     "PERIPHERAL_WALL_MAZE_PLUGIN_NAME";
@@ -23,7 +25,7 @@ const auto WALL_MAZE_PLUGIN_NAME = "WALL_MAZE_PLUGIN_NAME";
 const auto MOUSE_MAZE_PLUGIN_NAME = "MOUSE_MAZE_PLUGIN_NAME";
 const auto STATE_DISPLAY_PLUGIN_NAME = "STATE_DISPLAY_PLUGIN_NAME";
 
-constexpr auto MAZE_PATH_CURVING_SEED = 1919810;
+constexpr auto MAZE_PATH_CURVING_SEED = 3366;
 
 class Game;
 
@@ -72,6 +74,8 @@ class FloorMazePlugin final : public MazePlugin {
 
  protected:
     void renderOnTexture(sf::RenderTexture& render_texture) override;
+
+    static void renderGoalArea(sf::RenderTexture& render_texture);
 };
 
 class WallMazePlugin final : public MazePlugin {
@@ -136,8 +140,8 @@ class MouseMazePlugin final : public MazePlugin,
 
 class StateDisplayMazePlugin final : public MazePlugin {
  public:
-    explicit StateDisplayMazePlugin(Game* game) : MazePlugin(game, 5) {
-        font.loadFromFile("../assets/RobotoSlab-Regular.ttf");
+    explicit StateDisplayMazePlugin(Game* game) : MazePlugin(game, 15) {
+        font.loadFromFile(ROBOTO_SLAB_REGULAR_FONT_PATH);
     }
 
     std::string getName() override { return STATE_DISPLAY_PLUGIN_NAME; }
