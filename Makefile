@@ -27,7 +27,7 @@ $(SIMULATOR_APP):
 	$(CMAKE) --build $(CMAKE_DIR) --target $(SIMULATOR_APP)
 
 run: $(SIMULATOR_APP)
-	$(CMAKE_DIR)/$(SIMULATOR_APP)
+	cd $(CMAKE_DIR) || exit 1 && ./$(SIMULATOR_APP)
 
 clean:
 	rm -rf $(CMAKE_DIR)
