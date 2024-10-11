@@ -16,5 +16,6 @@ add_executable(mazemouse_simulator
         src/Simulator.hpp
         src/Mouse/SemiFinishedMouse.hpp
         src/Maze/Vector2.hpp
+        src/Mouse/CompleteMouse.hpp
 )
 target_link_libraries(mazemouse_simulator sfml-graphics sfml-window sfml-system)

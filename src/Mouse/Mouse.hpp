@@ -90,15 +90,17 @@ struct Mouse : MouseHardwareInterface {
      */
     Maze<S, C, E> maze;
 
+    Vector2 startingPosition;
+
+    Dir4 startingOrientation;
+
     /**
      * @brief The current position of the mouse in the maze.
      *
      * This member holds the current coordinates of the mouse within the
      * maze, represented as a 2D vector.
      */
-    Vector2 position{};
-
-    Mouse(Vector2 startingPosition, Dir4 startingOrientation);
+    Vector2 position;
 
     /**
      * @brief The orientation the mouse is currently facing.
@@ -107,9 +109,14 @@ struct Mouse : MouseHardwareInterface {
      * defined using the Dir4 enumeration. The initial orientation is set to
      * the defined starting orientation (MOUSE_STARTING_ORIENTATION).
      */
-    Dir4 orientation{ MOUSE_STARTING_ORIENTATION };
+    Dir4 orientation;
 
+    /**
+     * @brief The state of the mouse.
+     */
     MouseState state{ MouseState::Stopped };
+
+    Mouse(Vector2 startingPosition, Dir4 startingOrientation);
 
     /**
      * @brief Calculates the absolute direction based on the current
@@ -139,21 +146,71 @@ struct Mouse : MouseHardwareInterface {
      */
     [[nodiscard]] Dir4 getRelativeDir(Dir4 absolute_dir) const;
 
+    /**
+     * @brief Checks if there is a wall in a given direction.
+     *
+     * This method uses the hardware interface to determine if there is a wall
+     * in the specified direction relative to the mouse's current orientation.
+     *
+     * @param dir The direction to check for a wall, relative to the mouse's
+     * current orientation.
+     * @return true if there is a wall in the specified direction, false
+     * otherwise.
+     */
     virtual bool checkWall(Dir4 dir);
 
+    /**
+     * @brief Moves the mouse forward by a given distance.
+     *
+     * This method commands the mouse to move forward by the specified number
+     * of units and updates the mouse's position in the maze based on its
+     * current orientation.
+     *
+     * @param length The distance to move forward.
+     */
     virtual void moveForward(int length);
 
+    /**
+     * @brief Turns the mouse to face the target orientation.
+     *
+     * This method adjusts the mouse's current orientation to match the target
+     * orientation and commands the hardware to turn accordingly.
+     *
+     * @param target_orientation The target orientation the mouse should turn
+     * to.
+     */
     virtual void turn(Dir4 target_orientation);
 
+    /**
+     * @brief Executes the next step in the exploration process.
+     *
+     * This pure virtual method is intended to advance the mouse's state while
+     * it is actively exploring the maze. Derived classes must implement the
+     * logic for the next step in exploration.
+     */
     virtual void nextExploringCycle() = 0;
 
+    /**
+     * @brief Executes the next step in the rushing process.
+     *
+     * This pure virtual method is intended to advance the mouse's state when
+     * rushing towards the finish. Derived classes must implement the logic for
+     * the next step during the rushing phase.
+     */
     virtual void nextRushingCycle() = 0;
+
+    /**
+     * @brief
+     */
+    virtual void resetRushingState();
 };
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
 Mouse<S, C, E>::Mouse(
     const Vector2 startingPosition, const Dir4 startingOrientation) :
-    position{ startingPosition }, orientation(startingOrientation) {}
+    startingPosition{ startingPosition },
+    startingOrientation{ startingOrientation }, position{ startingPosition },
+    orientation(startingOrientation) {}
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
 Dir4 Mouse<S, C, E>::getAbsoluteDir(const Dir4 relative_dir) const {
@@ -194,6 +251,13 @@ void Mouse<S, C, E>::turn(const Dir4 target_orientation) {
     orientation = target_orientation;
 
     return hardwareTurn(getRelativeDir(orientation));
+}
+
+template <int S, DerivedFromCell C, DerivedFromEdge E>
+void Mouse<S, C, E>::resetRushingState() {
+    this->position = startingPosition;
+    this->orientation = startingOrientation;
+    this->state = MouseState::RushingToFinish;
 }
 
 }  // namespace Mazemouse

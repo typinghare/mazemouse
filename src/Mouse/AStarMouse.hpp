@@ -7,13 +7,14 @@ namespace Mazemouse {
 template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
 class AStarMouse : public FloodFillMouse<S, C, E> {
  public:
-    AStarMouse(
-        const Vector2 startingPosition, const Dir4 startingOrientation) :
+    AStarMouse(const Vector2 startingPosition, const Dir4 startingOrientation) :
         FloodFillMouse<S, C, E>(startingPosition, startingOrientation){};
 
     void nextExploringCycle() override;
 
     void nextRushingCycle() override;
+
+    void resetRushingState() override;
 
  protected:
     std::vector<Dir4> vector{};
@@ -47,6 +48,12 @@ void AStarMouse<S, C, E>::nextRushingCycle() {
         total_step++;
     }
     this->moveForward(step);
+}
+
+template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
+void AStarMouse<S, C, E>::resetRushingState() {
+    Mouse<S, C, E>::resetRushingState();
+    this->total_step = 0;
 }
 
 }  // namespace Mazemouse
