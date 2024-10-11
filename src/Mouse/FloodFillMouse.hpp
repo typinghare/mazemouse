@@ -2,7 +2,6 @@
 #define FLOOD_FILL_MOUSE_HPP
 
 #include <iostream>
-#include <stack>
 #include "Mouse.hpp"
 
 namespace Mazemouse {
@@ -17,7 +16,7 @@ concept DerivedFromFloodFillCell = std::is_base_of_v<FloodFillCell, C>;
 template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
 struct FloodFillMouse : Mouse<S, C, E> {
     FloodFillMouse(
-        const sf::Vector2i startingPosition, const Dir4 startingOrientation) :
+        const Vector2 startingPosition, const Dir4 startingOrientation) :
         Mouse<S, C, E>(startingPosition, startingOrientation){};
 
     void nextExploringCycle() override;

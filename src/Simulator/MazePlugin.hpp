@@ -25,7 +25,7 @@ const auto WALL_MAZE_PLUGIN_NAME = "WALL_MAZE_PLUGIN_NAME";
 const auto MOUSE_MAZE_PLUGIN_NAME = "MOUSE_MAZE_PLUGIN_NAME";
 const auto STATE_DISPLAY_PLUGIN_NAME = "STATE_DISPLAY_PLUGIN_NAME";
 
-constexpr auto MAZE_PATH_CURVING_SEED = 3366;
+constexpr auto MAZE_PATH_CURVING_SEED = 10086;
 
 class Game;
 
@@ -37,7 +37,7 @@ class MazePlugin : public GamePlugin {
         getSprite().setPosition({ marginPixelFloat, marginPixelFloat });
     }
 
-    static sf::Vector2i getWindowSize();
+    static Vector2 getWindowSize();
 
     void update(int dt) override{};
 
@@ -125,9 +125,9 @@ class MouseMazePlugin final : public MazePlugin,
 
     Dir4 entity_orientation_{ Dir4::Up };
 
-    sf::Vector2i entity_position_{ 0, 0 };
+    Vector2 entity_position_{ 0, 0 };
 
-    sf::Vector2i entity_destination_{ 0, 0 };
+    Vector2 entity_destination_{ 0, 0 };
 
     sf::Vector2f entity_position_pixel_{ 0, 0 };
 
@@ -135,7 +135,7 @@ class MouseMazePlugin final : public MazePlugin,
 
     void renderMouse(sf::RenderTexture& render_texture) const;
 
-    void teleport(const sf::Vector2i& position);
+    void teleport(const Vector2& position);
 };
 
 class StateDisplayMazePlugin final : public MazePlugin {

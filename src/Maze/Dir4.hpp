@@ -1,6 +1,8 @@
 #ifndef DIRECTION_HPP
 #define DIRECTION_HPP
 
+#include "Vector2.hpp"
+
 namespace Mazemouse {
 
 /**
@@ -21,7 +23,7 @@ enum class Dir4 : int { Up, Right, Down, Left };
  * @param dir The direction to be converted.
  * @return A vector representing the direction as a vector.
  */
-inline sf::Vector2i get_vector(const Dir4 dir) {
+inline Vector2 get_vector(const Dir4 dir) {
     switch (dir) {
         case Dir4::Up:
             return { 0, -1 };
@@ -48,7 +50,7 @@ inline sf::Vector2i get_vector(const Dir4 dir) {
  * @return A `Dir4` value representing the direction.
  * @throws std::invalid_argument if the vector is not a valid unit vector.
  */
-inline Dir4 get_dir(const sf::Vector2i vector) {
+inline Dir4 get_dir(const Vector2 vector) {
     if (vector.x == 0) {
         return vector.y == -1 ? Dir4::Up : Dir4::Down;
     }
