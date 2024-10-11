@@ -3,7 +3,7 @@
 
 namespace MazemouseSimulator {
 
-sf::Vector2i MazePlugin::getWindowSize() {
+Vector2 MazePlugin::getWindowSize() {
     static auto SIDE_LENGTH_PIXEL =
         MAZE_MARGIN_PIXEL * 2 + REAL_MAZE_SIDE_LENGTH * CELL_SIDE_LENGTH_PIXEL;
     return { SIDE_LENGTH_PIXEL, SIDE_LENGTH_PIXEL };
@@ -128,17 +128,17 @@ void WallMazePlugin::carvePaths(const int seed) const {
 
     std::mt19937 rng(seed);
     std::vector visited(S * S, false);
-    std::stack<sf::Vector2i> cell_stack;
-    sf::Vector2i current(0, 15);
+    std::stack<Vector2> cell_stack;
+    Vector2 current(0, 15);
     cell_stack.push(current);
     visited[current.y * S + current.x] = true;
 
     constexpr int halfSide = S / 2;
     const std::vector centerCells = {
-        sf::Vector2i(halfSide - 1, halfSide - 1),
-        sf::Vector2i(halfSide - 1, halfSide),
-        sf::Vector2i(halfSide, halfSide),
-        sf::Vector2i(halfSide, halfSide - 1),
+        Vector2(halfSide - 1, halfSide - 1),
+        Vector2(halfSide - 1, halfSide),
+        Vector2(halfSide, halfSide),
+        Vector2(halfSide, halfSide - 1),
     };
     bool reached_center = false;
 
@@ -157,12 +157,11 @@ void WallMazePlugin::carvePaths(const int seed) const {
         std::vector<Dir4> possible_dirs;
         for (int i = 0; i < 4; i++) {
             auto dir = static_cast<Dir4>(i);
-            const sf::Vector2i next =
-                current + get_vector(static_cast<Dir4>(i));
+            const auto [x, y] = current + get_vector(static_cast<Dir4>(i));
 
             // Check if the next cell is within bounds
-            if (next.x >= 0 && next.x < S && next.y >= 0 && next.y < S) {
-                if (!visited[next.y * S + next.x]) {
+            if (x >= 0 && x < S && y >= 0 && y < S) {
+                if (!visited[y * S + x]) {
                     possible_dirs.push_back(dir);
                 }
             }
@@ -174,7 +173,7 @@ void WallMazePlugin::carvePaths(const int seed) const {
             const Dir4 chosenDir = possible_dirs[dist(rng)];
             maze.edge(current, chosenDir).hasWall = false;
 
-            sf::Vector2i next = current + get_vector(chosenDir);
+            Vector2 next = current + get_vector(chosenDir);
             visited[next.y * S + next.x] = true;
             cell_stack.push(next);
         } else {
@@ -184,8 +183,7 @@ void WallMazePlugin::carvePaths(const int seed) const {
 
     if (!reached_center) {
         std::vector visited2(S * S, false);
-        std::function<bool(sf::Vector2i)> findPath =
-            [&](const sf::Vector2i pos) -> bool {
+        std::function<bool(Vector2)> findPath = [&](const Vector2 pos) -> bool {
             visited2[pos.y * S + pos.x] = true;
 
             for (const auto& centerCell : centerCells) {
@@ -196,7 +194,7 @@ void WallMazePlugin::carvePaths(const int seed) const {
             // Try all directions
             for (int i = 0; i < 4; i++) {
                 const auto dir = static_cast<Dir4>(i);
-                const sf::Vector2i next = pos + get_vector(dir);
+                const Vector2 next = pos + get_vector(dir);
 
                 if (next.x >= 0 && next.x < S && next.y >= 0 && next.y < S &&
                     !visited2[next.y * S + next.x]) {
@@ -212,7 +210,7 @@ void WallMazePlugin::carvePaths(const int seed) const {
             return false;
         };
 
-        findPath(sf::Vector2i(0, 15));
+        findPath(Vector2(0, 15));
     }
 
     // Connect center cells to each other
@@ -239,7 +237,7 @@ bool MouseMazePlugin::hardwareCheckWall(const Dir4 dir) {
 }
 
 void MouseMazePlugin::hardwareMoveForward(const int length) {
-    entity_destination_ = position + get_vector(entity_orientation_) * length;
+    entity_destination_ = position + length * get_vector(entity_orientation_);
     running_ = true;
 }
 
@@ -373,7 +371,7 @@ void MouseMazePlugin::renderMouse(sf::RenderTexture& render_texture) const {
     render_texture.draw(circle);
 }
 
-void MouseMazePlugin::teleport(const sf::Vector2i& position) {
+void MouseMazePlugin::teleport(const Vector2& position) {
     this->entity_position_ = position;
     entity_position_pixel_ = {
         (0.5f + static_cast<float>(position.x)) * CELL_SIDE_LENGTH_PIXEL,

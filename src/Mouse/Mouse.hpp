@@ -96,9 +96,9 @@ struct Mouse : MouseHardwareInterface {
      * This member holds the current coordinates of the mouse within the
      * maze, represented as a 2D vector.
      */
-    sf::Vector2i position{};
+    Vector2 position{};
 
-    Mouse(sf::Vector2i startingPosition, Dir4 startingOrientation);
+    Mouse(Vector2 startingPosition, Dir4 startingOrientation);
 
     /**
      * @brief The orientation the mouse is currently facing.
@@ -152,7 +152,7 @@ struct Mouse : MouseHardwareInterface {
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
 Mouse<S, C, E>::Mouse(
-    const sf::Vector2i startingPosition, const Dir4 startingOrientation) :
+    const Vector2 startingPosition, const Dir4 startingOrientation) :
     position{ startingPosition }, orientation(startingOrientation) {}
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>

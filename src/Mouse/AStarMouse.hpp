@@ -8,7 +8,7 @@ template <int S, DerivedFromFloodFillCell C, DerivedFromEdge E>
 class AStarMouse : public FloodFillMouse<S, C, E> {
  public:
     AStarMouse(
-        const sf::Vector2i startingPosition, const Dir4 startingOrientation) :
+        const Vector2 startingPosition, const Dir4 startingOrientation) :
         FloodFillMouse<S, C, E>(startingPosition, startingOrientation){};
 
     void nextExploringCycle() override;

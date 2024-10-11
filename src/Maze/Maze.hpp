@@ -3,8 +3,8 @@
 
 #include <stdexcept>
 #include <string>
-#include <SFML/System/Vector2.hpp>
 #include "Dir4.hpp"
+#include "Vector2.hpp"
 
 namespace Mazemouse {
 
@@ -55,7 +55,7 @@ struct Maze {
      * @param coord The coordinates of the cell.
      * @return The index of the cell in the `cells` array.
      */
-    [[nodiscard]] static int cellIndex(const sf::Vector2i& coord);
+    [[nodiscard]] static int cellIndex(const Vector2& coord);
 
     /**
      * Returns a reference to the cell at the given coordinates.
@@ -63,7 +63,7 @@ struct Maze {
      * @param coord The coordinates of the cell.
      * @return A reference to the cell.
      */
-    [[nodiscard]] C& cell(const sf::Vector2i& coord);
+    [[nodiscard]] C& cell(const Vector2& coord);
 
     /**
      * Returns the index of the edge at the given coordinates and direction.
@@ -72,7 +72,7 @@ struct Maze {
      * @param dir The direction of the edge.
      * @return The index of the edge in the `edges` array.
      */
-    [[nodiscard]] static int edgeIndex(const sf::Vector2i& coord, Dir4 dir);
+    [[nodiscard]] static int edgeIndex(const Vector2& coord, Dir4 dir);
 
     /**
      * Returns a const reference to the edge at the given coordinates and
@@ -83,7 +83,7 @@ struct Maze {
      * @return A const reference to the edge.
      * @throws std::invalid_argument if the coordinates are out of bounds.
      */
-    [[nodiscard]] const E& edge(const sf::Vector2i& coord, Dir4 dir) const;
+    [[nodiscard]] const E& edge(const Vector2& coord, Dir4 dir) const;
 
     /**
      * Checks if the given coordinates and direction are within the maze bounds.
@@ -93,7 +93,7 @@ struct Maze {
      * @return True if the coordinates and direction are within bounds, false
      * otherwise.
      */
-    [[nodiscard]] static bool withinBounds(const sf::Vector2i& coord, Dir4 dir);
+    [[nodiscard]] static bool withinBounds(const Vector2& coord, Dir4 dir);
 
     /**
      * Checks if the edge at the given coordinates and direction is open.
@@ -102,28 +102,28 @@ struct Maze {
      * @param dir The direction of the edge.
      * @return True if the edge is open (i.e., no wall), false otherwise.
      */
-    [[nodiscard]] bool isOpen(const sf::Vector2i& coord, Dir4 dir) const;
+    [[nodiscard]] bool isOpen(const Vector2& coord, Dir4 dir) const;
 };
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
-int Maze<S, C, E>::cellIndex(const sf::Vector2i& coord) {
+int Maze<S, C, E>::cellIndex(const Vector2& coord) {
     return S * coord.y + coord.x;
 }
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
-C& Maze<S, C, E>::cell(const sf::Vector2i& coord) {
+C& Maze<S, C, E>::cell(const Vector2& coord) {
     return cells[cellIndex(coord)];
 }
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
-int Maze<S, C, E>::edgeIndex(const sf::Vector2i& coord, Dir4 dir) {
+int Maze<S, C, E>::edgeIndex(const Vector2& coord, Dir4 dir) {
     const auto dirInt = static_cast<int>(dir);
     return dirInt % 2 == 0 ? (S - 1) * coord.x + coord.y - (dirInt == 0)
                            : (S - 1) * (S + coord.y) + coord.x - (dirInt == 3);
 }
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
-const E& Maze<S, C, E>::edge(const sf::Vector2i& coord, const Dir4 dir) const {
+const E& Maze<S, C, E>::edge(const Vector2& coord, const Dir4 dir) const {
     if (!withinBounds(coord, dir)) {
         throw std::invalid_argument(
             "Maze::edge(): coord is out of range: (" + std::to_string(coord.x) +
@@ -135,7 +135,7 @@ const E& Maze<S, C, E>::edge(const sf::Vector2i& coord, const Dir4 dir) const {
 }
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
-bool Maze<S, C, E>::withinBounds(const sf::Vector2i& coord, const Dir4 dir) {
+bool Maze<S, C, E>::withinBounds(const Vector2& coord, const Dir4 dir) {
     switch (dir) {
         case Dir4::Up:
             return coord.y > 0;
@@ -150,7 +150,7 @@ bool Maze<S, C, E>::withinBounds(const sf::Vector2i& coord, const Dir4 dir) {
 }
 
 template <int S, DerivedFromCell C, DerivedFromEdge E>
-bool Maze<S, C, E>::isOpen(const sf::Vector2i& coord, const Dir4 dir) const {
+bool Maze<S, C, E>::isOpen(const Vector2& coord, const Dir4 dir) const {
     return withinBounds(coord, dir) && !edge(coord, dir).hasWall;
 }
 
